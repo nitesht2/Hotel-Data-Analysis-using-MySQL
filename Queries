@@ -1,0 +1,187 @@
+# Hotel Project
+
+step 1: First all the data was converted to csv file and then loaded to Mysql workbench
+
+Step2: then started writing queries based on the questions asked. 
+
+Step 3: 
+
+```sql
+#query is used to count the number of rows in the hotel_2018 table
+SELECT COUNT(*) AS num_rows
+FROM project.hotel_2018;
+
+#query is used to count the number of rows in the hotel_2019 table
+SELECT COUNT(*) AS num_rows
+FROM project.hotel_2019;
+
+#query is used to count the number of rows in the hotel_2020 table
+SELECT COUNT(*) AS num_rows
+FROM project.hotel_2020;
+
+#query is used to count the number of rows in the hotel_2020 table
+SELECT COUNT(*) AS num_rows
+FROM project.hotel_2020;
+
+#combining the rows from the hotel_2018, hotel_2019, and hotel_2020 tables into a single result set using the UNION operator. 
+SELECT *
+FROM project.hotel_2018
+UNION
+SELECT *
+FROM project.hotel_2019
+UNION
+SELECT *
+FROM project.hotel_2020;
+
+#Question: Is hotel revenue growing by year? 
+#but we dont have revenue column in the hotel_2018 table. So now we have to create new column as revenue by adding stays_in_weekend_night and stays_in_week_nights then multiply by adr which is average daily rate.
+#lets first create temporary table creating a Common Table Expression (CTE) named hotels
+
+WITH hotels as (
+SELECT *
+FROM project.hotel_2018
+UNION
+SELECT *
+FROM project.hotel_2019
+UNION
+SELECT *
+FROM project.hotel_2020)
+
+Select (stays_in_weekend_nights+stays_in_week_nights)*adr as revenue
+FROM hotels
+#output for this is shown below: 
+```
+
+![Screen Shot 2023-03-31 at 2.46.23 PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/5da50396-b025-4488-a3da-947924365b4b/Screen_Shot_2023-03-31_at_2.46.23_PM.png)
+
+```sql
+#lets find out the revenue for each year
+WITH hotels as (
+SELECT *
+FROM project.hotel_2018
+UNION
+SELECT *
+FROM project.hotel_2019
+UNION
+SELECT *
+FROM project.hotel_2020)
+
+SELECT 
+arrival_date_year, (stays_in_weekend_nights+stays_in_week_nights)*adr as revenue
+FROM hotels
+
+The output is: 
+```
+
+![Screen Shot 2023-03-31 at 2.49.30 PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/01908d68-b166-4ce2-95a7-cc0d711057c7/Screen_Shot_2023-03-31_at_2.49.30_PM.png)
+
+```sql
+#lets group by year and find the total sum of revenue for each year
+WITH hotels as (
+SELECT *
+FROM project.hotel_2018
+UNION
+SELECT *
+FROM project.hotel_2019
+UNION
+SELECT *
+FROM project.hotel_2020)
+
+SELECT 
+	arrival_date_year, 
+	sum((stays_in_weekend_nights+stays_in_week_nights)*adr) as revenue
+FROM hotels
+GROUP BY arrival_date_year
+
+The output is shown below: 
+```
+
+![Screen Shot 2023-03-31 at 2.53.33 PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/01d9f8e6-c48a-401a-9407-46606d703bb1/Screen_Shot_2023-03-31_at_2.53.33_PM.png)
+
+Insight: 
+
+From the output we see that each year the revenue is growing. 
+
+### Question 2: We need to find out revenue by each Hotel type?
+
+```sql
+#lets add hotel column in the above query and group by hotel. Also let's round the numerical value by 2 decimal places
+WITH hotels as (
+SELECT *
+FROM project.hotel_2018
+UNION
+SELECT *
+FROM project.hotel_2019
+UNION
+SELECT *
+FROM project.hotel_2020)
+
+SELECT 
+	arrival_date_year, 
+    hotel,
+	round(sum((stays_in_weekend_nights+stays_in_week_nights)*adr),2) as revenue
+FROM hotels
+GROUP BY arrival_date_year, hotel
+
+The output is: 
+```
+
+![Screen Shot 2023-03-31 at 3.00.09 PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e846ddd5-ce82-432e-9451-ab0e895d2542/Screen_Shot_2023-03-31_at_3.00.09_PM.png)
+
+Insight: 
+
+- It shows that the revenue is growing for city hotel from 2018 to 2019 and decreasing sightly in 2020.
+- The revenue for Resort Hotel grew from 2018 to 2019 and shrink a bit in 2020.
+
+Part 2:
+
+Joining tables for data visualization in Tableau/Microsoft PowerBI
+
+We have another table which is “market_segment”. It has two columns. Also there is “market_segment” column in all three tables i.e. hotel_2018, hotel_2019, hotel_2020 which is combined as hotel.
+
+```sql
+#join market_segment table with the hotels table.
+
+WITH hotels as (
+SELECT *
+FROM project.hotel_2018
+UNION
+SELECT *
+FROM project.hotel_2019
+UNION
+SELECT *
+FROM project.hotel_2020)
+
+SELECT * from hotels
+LEFT JOIN project.market_segment
+ON hotels.market_segment = market_segment.market_segment
+```
+
+Output: 
+
+Two new column on the far right “Discount” and “market_segment” are joined in the hotel table. 
+
+![Screen Shot 2023-03-31 at 3.20.45 PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/ac2ebc30-4719-4add-b830-d81d1895d954/Screen_Shot_2023-03-31_at_3.20.45_PM.png)
+
+Also join meal_cost table with the hotels table
+
+```sql
+WITH hotels as (
+SELECT *
+FROM project.hotel_2018
+UNION
+SELECT *
+FROM project.hotel_2019
+UNION
+SELECT *
+FROM project.hotel_2020)
+
+SELECT * from hotels
+LEFT JOIN project.market_segment
+ON hotels.market_segment = market_segment.market_segment
+ON meal_cost.meal = hotels.meal
+```
+
+Output: 
+
+Two new column on the far right “cost” and “meal” are joined in the above table.
