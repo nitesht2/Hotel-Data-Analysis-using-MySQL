@@ -21,3 +21,21 @@ To use this project, follow these steps:
 
 By following these steps, you can use this project to analyze hotel booking data and gain insights into trends and patterns in the data.
 
+📊 Data Sources
+The hotel booking data used in this project was obtained from here. The data contains information on hotel bookings from 2018-2020, including the hotel type, arrival and departure dates, number of guests, and booking status.
+
+📁 File Descriptions
+hotel_revenue_historical.xls: File containing the data used to analyze the hotel booking data and generate visualizations.
+
+data/2018.csv: CSV file containing hotel booking data from 2018.
+data/2019.csv: CSV file containing hotel booking data from 2019.
+data/2020.csv: CSV file containing hotel booking data from 2020.
+
+🏆 Result
+
+
+
+
+
+
+
